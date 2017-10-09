@@ -1,13 +1,12 @@
 #include <vector>
-#include <map>
 
 struct EulerTour {
   using tree_type = std::vector<std::vector<int>>;
   tree_type T;
+  std::vector<int> begin, end;
   std::vector<int> id, depth;
-  std::map<int, int> ord;
 
-  EulerTour(int N) : T(N) {}
+  EulerTour(int N) : T(N), begin(N), end(N) {}
 
   void add_edge(int s, int t) {
     T[s].push_back(t);
@@ -23,12 +22,13 @@ struct EulerTour {
   }
 
   void traverse(int u, int p=-1, int d=0) {
-    ord[u] = id.size();
+    begin[u] = end[u] = id.size();
     id.push_back(u);
     depth.push_back(d);
     for (int v : T[u]) {
       if (v == p) continue;
       traverse(v, u, d + 1);
+      end[u] = id.size();
       id.push_back(u);
       depth.push_back(d);
     }
