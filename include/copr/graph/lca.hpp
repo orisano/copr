@@ -1,11 +1,11 @@
-#include <vector>
 #include <utility>
+#include <vector>
 
 struct LCA {
-  EulerTour& euler_tour;
+  EulerTour euler_tour;
   const RMQ<int> rmq;
 
-  LCA(EulerTour& euler_tour) : euler_tour(euler_tour), rmq(euler_tour.depth) {}
+  LCA(EulerTour&& euler_tour) : euler_tour(euler_tour), rmq(euler_tour.depth) {}
 
   int query(int u, int v) const {
     int l = euler_tour.ord[u];
