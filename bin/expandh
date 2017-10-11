@@ -1,0 +1,109 @@
+#!/usr/bin/python
+# coding: utf-8
+
+import argparse
+import os.path
+import sys
+
+
+def find_exists(fname, dirs):  # type: (str, List[str]) -> Optional[str]
+    for d in dirs:
+        path = os.path.join(d, fname)
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def resolve_path(token, current_dir, include_path):  # type: (str, str, List[str]) -> Optional[str]
+    fname = token[1:-1]
+    if token[0] == "<":
+        return find_exists(fname, include_path)
+    else:
+        return find_exists(fname, [current_dir] + include_path)
+
+
+def expand(fpath, files=None, defined=None, if_stack=None, included=None, include_path=None):
+    """
+    :type fpath: str
+    :type files: set[str]
+    :type defined: set[str]
+    :type if_stack: list[bool]
+    :type included: set[str]
+    :type include_path: list[str]
+    """
+    if files is None:
+        files = set()
+    if defined is None:
+        defined = set()
+    if if_stack is None:
+        if_stack = [True]
+    if included is None:
+        included = set()
+    include_path = (include_path or []) + ["/usr/include/", "/usr/local/include/"]
+
+    is_first = fpath not in files
+    files.add(fpath)
+
+    current_dir = os.path.dirname(fpath)
+
+    for line in open(fpath).readlines():
+        li = line.strip()
+
+        if li.startswith("#"):
+            tokens = [token for token in li.split(" ") if token]
+            directive = tokens[0]
+            args = tokens[1:]
+
+            if directive == "#if":
+                if_stack.append(bool(eval(args[0])))
+                continue
+            elif directive == "#else":
+                if_stack[-1] = not if_stack[-1]
+                continue
+            elif directive == "#ifdef":
+                if_stack.append(args[0] in defined)
+                continue
+            elif directive == "#ifndef":
+                if_stack.append(not args[0] in defined)
+                continue
+            elif directive == "#endif":
+                if_stack.pop()
+                continue
+
+        if not all(if_stack):
+            continue
+
+        if li.startswith("#"):
+            if directive == "#pragma":
+                if args[0] == "once":
+                    if is_first:
+                        continue
+                    else:
+                        return
+            elif directive == "#define":
+                defined.add(args[0])
+            elif directive == "#undef":
+                defined.remove(args[0])
+            elif directive == "#include":
+                if args[0] in included:
+                    continue
+                included.add(args[0])
+                expand_file = resolve_path(args[0], current_dir, include_path)
+                if expand_file:
+                    for x in expand(expand_file, files, defined, if_stack, included, include_path):
+                        yield x
+                    continue
+        yield line
+
+
+def main(path):
+    abspath = os.path.abspath(path)
+    for line in expand(abspath):
+        sys.stdout.write(line)
+
+
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("path")
+    args = p.parse_args()
+    main(args.path)
