@@ -1,5 +1,4 @@
 #include <utility>
-#include <vector>
 
 struct LCA {
   EulerTour euler_tour;
