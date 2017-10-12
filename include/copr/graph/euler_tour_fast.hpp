@@ -6,10 +6,10 @@
 struct EulerTour {
   using tree_type = std::vector<std::vector<int>>;
   tree_type T;
+  std::vector<int> begin, end;
   std::vector<int> id, depth;
-  std::vector<int> ord;
 
-  EulerTour(int N) : T(N), ord(N) {}
+  EulerTour(int N) : T(N), begin(N), end(N) {}
 
   void add_edge(int s, int t) {
     T[s].push_back(t);
@@ -35,7 +35,8 @@ struct EulerTour {
     s.emplace(u, p, d);
     while (!s.empty()) {
       auto& f = s.top();
-      if (f.i == 0) ord[f.u] = id.size();
+      if (f.i == 0) begin[f.u] = id.size();
+      end[f.u] = id.size();
       id.push_back(f.u);
       depth.push_back(f.d);
 
