@@ -1,3 +1,5 @@
+#ifndef INCLUDE_RMQ_HPP
+#define INCLUDE_RMQ_HPP
 #include <algorithm>
 #include <vector>
 
@@ -70,3 +72,4 @@ private:
     return F(large[l][x], large[r - (1 << x) + 1][x]);
   }
 };
+#endif

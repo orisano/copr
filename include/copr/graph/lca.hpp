@@ -1,3 +1,6 @@
+#pragma once
+#include <copr/graph/euler_tour.hpp>
+#include <copr/sequence/rmq.hpp>
 #include <utility>
 
 struct LCA {

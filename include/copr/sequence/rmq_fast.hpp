@@ -1,3 +1,5 @@
+#ifndef INCLUDE_RMQ_HPP
+#define INCLUDE_RMQ_HPP
 #include <algorithm>
 #include <assert.h>
 #include <cstdlib>
@@ -78,3 +80,4 @@ private:
     return F(large[l * LG_L + x], large[(r - (1 << x) + 1) * LG_L + x]);
   }
 };
+#endif

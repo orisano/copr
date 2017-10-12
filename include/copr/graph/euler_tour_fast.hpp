@@ -1,3 +1,5 @@
+#ifndef INCLUDE_EULER_TOUR_HPP
+#define INCLUDE_EULER_TOUR_HPP
 #include <stack>
 #include <vector>
 
@@ -51,3 +53,4 @@ struct EulerTour {
     }
   }
 };
+#endif
