@@ -51,7 +51,8 @@ def expand(fpath,              # type: Text
         if_stack = [True]
     if included is None:
         included = set()
-    include_path = (include_path or []) + ["/usr/include/", "/usr/local/include/"]
+    if include_path is None:
+        include_path = []
 
     is_first = fpath not in files
     files.add(fpath)
