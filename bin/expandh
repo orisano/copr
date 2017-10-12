@@ -1,12 +1,25 @@
 #!/usr/bin/python
 # coding: utf-8
-
-import argparse
+from __future__ import (
+    unicode_literals,
+)
+import codecs
 import os.path
 import sys
+try:
+    from typing import (
+        Iterable,
+        Iterator,
+        List,
+        Optional,
+        Set,
+        Text,
+    )
+except ImportError:
+    pass
 
 
-def find_exists(fname, dirs):  # type: (str, List[str]) -> Optional[str]
+def find_exists(fname, dirs):  # type: (Text, Iterable[Text]) -> Optional[Text]
     for d in dirs:
         path = os.path.join(d, fname)
         if os.path.exists(path):
@@ -14,7 +27,7 @@ def find_exists(fname, dirs):  # type: (str, List[str]) -> Optional[str]
     return None
 
 
-def resolve_path(token, current_dir, include_path):  # type: (str, str, List[str]) -> Optional[str]
+def resolve_path(token, current_dir, include_path):  # type: (Text, Text, Iterable[Text]) -> Optional[Text]
     fname = token[1:-1]
     if token[0] == "<":
         return find_exists(fname, include_path)
@@ -22,15 +35,14 @@ def resolve_path(token, current_dir, include_path):  # type: (str, str, List[str
         return find_exists(fname, [current_dir] + include_path)
 
 
-def expand(fpath, files=None, defined=None, if_stack=None, included=None, include_path=None):
-    """
-    :type fpath: str
-    :type files: set[str]
-    :type defined: set[str]
-    :type if_stack: list[bool]
-    :type included: set[str]
-    :type include_path: list[str]
-    """
+def expand(fpath,              # type: Text
+           files=None,         # type: Optional[Set[Text]]
+           defined=None,       # type: Optional[Set[Text]]
+           if_stack=None,      # type: Optional[List[bool]]
+           included=None,      # type: Optional[Set[Text]]
+           include_path=None,  # type: Optional[List[Text]]
+           ):
+    # type: (...) -> Iterator[Text]
     if files is None:
         files = set()
     if defined is None:
@@ -46,7 +58,7 @@ def expand(fpath, files=None, defined=None, if_stack=None, included=None, includ
 
     current_dir = os.path.dirname(fpath)
 
-    for line in open(fpath).readlines():
+    for line in codecs.open(fpath, encoding="utf-8").readlines():
         li = line.strip()
 
         if li.startswith("#"):
@@ -96,14 +108,22 @@ def expand(fpath, files=None, defined=None, if_stack=None, included=None, includ
         yield line
 
 
-def main(path):
-    abspath = os.path.abspath(path)
-    for line in expand(abspath):
-        sys.stdout.write(line)
+def main():
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument("cppfile")
+    parser.add_argument("-I", "--include")
+
+    args = parser.parse_args()
+
+    cpp_path = os.path.abspath(args.cppfile)
+    include_path = []
+    if args.include:
+        include_path.append(args.include)
+
+    for line in expand(cpp_path, include_path=include_path):
+        sys.stdout.write(line.encode("utf-8"))
 
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser()
-    p.add_argument("path")
-    args = p.parse_args()
-    main(args.path)
+    main()
