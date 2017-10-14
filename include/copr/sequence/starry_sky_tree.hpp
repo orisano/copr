@@ -1,11 +1,12 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <limits>
 
-template<typename T>
+template<typename IntType>
 struct StarrySkyTree {
   using Index0 = int;
-  using value_type = T;
+  using value_type = IntType;
   struct Node {
     value_type val, add;
   };
@@ -17,29 +18,28 @@ struct StarrySkyTree {
   StarrySkyTree(int size, int aligned) : N(aligned), nodes((Node*)std::calloc(sizeof(Node), aligned * 2)) {
     assert(nodes != nullptr);
   }
-  inline void add(value_type v, Index0 a, Index0 b) {
-    add(v, a, b, 0, 0, N);
-  }
-  void add(value_type v, Index0 a, Index0 b, int x, Index0 l, Index0 r) {
-    if (r <= a || b <= l) return;
-    if (a <= l && r <= b) {
-      nodes[x].add += v;
-      return;
+  void add(value_type v, Index0 a, Index0 b) {
+    for (int l = a + N, r = b + N; l < r; l >>= 1, r >>= 1) {
+      if (l & 1) nodes[l++].add += v;
+      if (r & 1) nodes[--r].add += v;
     }
-    Index0 m = (l + r) >> 1;
-    int lch = x + x + 1, rch = x + x + 2;
-    add(v, a, b, lch, l, m);
-    add(v, a, b, rch, m, r);
-    nodes[x].val = std::max(nodes[lch].val + nodes[lch].add, nodes[rch].val + nodes[rch].add);
+    for (int l = a + N, r = b - 1 + N; l > 1;) {
+      l >>= 1;
+      r >>= 1;
+      nodes[l].val = std::max(eval_node(nodes[l << 1]), eval_node(nodes[l << 1 | 1]));
+      if (l != r) nodes[r].val = std::max(eval_node(nodes[r << 1]), eval_node(nodes[r << 1 | 1]));
+    }
   }
-  inline value_type query(Index0 a, Index0 b) const {
-    return query(a, b, 0, 0, N);
+  value_type query(Index0 a, Index0 b) const {
+    auto maxi = std::numeric_limits<value_type>::min();
+    for (int l = a + N, r = b + N; l < r; l >>= 1, r >>= 1) {
+      if (l & 1) maxi = std::max(maxi, eval_node(nodes[l++]));
+      if (r & 1) maxi = std::max(maxi, eval_node(nodes[--r]));
+    }
+    return maxi;
   }
-  value_type query(Index0 a, Index0 b, int x, Index0 l, Index0 r) const {
-    if (r <= a || b <= l) return 0;
-    if (a <= l && r <= b) return nodes[x].val + nodes[x].add;
-    Index0 m = (l + r) >> 1;
-    int lch = x + x + 1, rch = x + x + 2;
-    return std::max(query(a, b, lch, l, m), query(a, b, rch, m, r)) + nodes[x].add;
+ private:
+  inline value_type eval_node(Node n) const {
+    return n.val + n.add;
   }
 };
