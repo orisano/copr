@@ -1,7 +1,7 @@
 #ifndef INCLUDE_RMQ_HPP
 #define INCLUDE_RMQ_HPP
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 #include <vector>
 
