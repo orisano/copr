@@ -1,5 +1,5 @@
 #include <copr/graph/euler_tour.hpp>
-#include <copr/graph/lca.hpp>
+#include <copr/graph/fast_lca.hpp>
 
 #include <cstdio>
 #define mygc(c) (c) = getchar_unlocked()
@@ -20,7 +20,7 @@ int main() {
     }
   }
   et.build(0);
-  LCA lca(std::move(et));
+  FastLCA lca(std::move(et));
 
   int Q = rd();
   for (int i = 0; i < Q; i++) {
