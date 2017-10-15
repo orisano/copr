@@ -12,14 +12,18 @@ struct SegTree {
   SegTree(int size) : SegTree(size, 1 << (32 - __builtin_clz(size - 1))) {}
   SegTree(int size, int aligned) : N(aligned), nodes(aligned * 2, Monoid::empty()) {}
 
-  template<typename F>
-  void modify(int x, F f) {
+  void update(Index0 x, value_type v) {
     x += N;
-    nodes[x] = f(nodes[x]);
+    nodes[x] = v;
     while (x > 1) {
       x >>= 1;
       nodes[x] = Monoid::append(nodes[x << 1], nodes[x << 1 | 1]);
     }
+  }
+
+  template<typename F>
+  void modify(Index0 x, F f) {
+    update(x, f(nodes[x + N]));
   }
 
   value_type query(Index0 a, Index0 b) const {
