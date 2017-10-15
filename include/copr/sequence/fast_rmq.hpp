@@ -1,12 +1,11 @@
-#ifndef INCLUDE_RMQ_HPP
-#define INCLUDE_RMQ_HPP
+#pragma once
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <vector>
 
-template <typename T>
-struct RMQ {
+template <typename T, bool Min=true>
+struct FastRMQ {
   using Index = int;
   using BitIndex = int;
 
@@ -18,10 +17,10 @@ struct RMQ {
   Index* const large;
 
   bool f(Index a, Index b) const {
-    if (A[a] != A[b]) return A[a] < A[b];
+    if (A[a] != A[b]) return Min ^ (A[a] > A[b]);
     return a < b;
   }
-  RMQ(const std::vector<T>& A) : RMQ(A, A.size()) {}
+  FastRMQ(const std::vector<T>& A) : FastRMQ(A, A.size()) {}
   Index query(Index l, Index r) const {
     const int a = l / S, b = r / S;
     if (a == b) return query_small(l, r);
@@ -30,17 +29,13 @@ struct RMQ {
     if (a + 1 <= b - 1) ans = F(ans, query_large(a + 1, b - 1));
     return ans;
   }
-  ~RMQ() {
-    std::free(small);
-    std::free(large);
-  }
 private:
   inline Index F(Index a, Index b) const { return f(a, b) ? a : b; }
 
-  RMQ(const std::vector<T>& A, int N) : RMQ(A, N, std::__lg(N) + 1) {}
-  RMQ(const std::vector<T>& A, int N, int S) : RMQ(A, N, S, (N + S - 1) / S) {}
-  RMQ(const std::vector<T>& A, int N, int S, int L) : RMQ(A, N, S, L, std::__lg(L) + 1) {}
-  RMQ(const std::vector<T>& A, int N, int S, int L, int LG_L)
+  FastRMQ(const std::vector<T>& A, int N) : FastRMQ(A, N, std::__lg(N) + 1) {}
+  FastRMQ(const std::vector<T>& A, int N, int S) : FastRMQ(A, N, S, (N + S - 1) / S) {}
+  FastRMQ(const std::vector<T>& A, int N, int S, int L) : FastRMQ(A, N, S, L, std::__lg(L) + 1) {}
+  FastRMQ(const std::vector<T>& A, int N, int S, int L, int LG_L)
       : A(A), N(N), S(S), L(L), LG_L(LG_L), lg(1 << S), small((BitIndex*)std::malloc(N * sizeof(BitIndex))), large((Index*)std::malloc(L * LG_L * sizeof(Index))) {
     assert(small != nullptr);
     assert(large != nullptr);
@@ -80,4 +75,3 @@ private:
     return F(large[l * LG_L + x], large[(r - (1 << x) + 1) * LG_L + x]);
   }
 };
-#endif
