@@ -1,13 +1,13 @@
 #pragma once
 #include <copr/graph/euler_tour.hpp>
-#include <copr/sequence/rmq.hpp>
+#include <copr/sequence/fast_rmq.hpp>
 #include <utility>
 
-struct LCA {
+struct FastLCA {
   EulerTour euler_tour;
-  const RMQ<int> rmq;
+  const FastRMQ<int> rmq;
 
-  LCA(EulerTour&& euler_tour) : euler_tour(euler_tour), rmq(euler_tour.depth) {}
+  FastLCA(EulerTour&& euler_tour) : euler_tour(euler_tour), rmq(euler_tour.depth) {}
 
   int query(int u, int v) const {
     int l = euler_tour.begin[u];
