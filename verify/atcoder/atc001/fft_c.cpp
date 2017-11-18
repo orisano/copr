@@ -21,12 +21,12 @@ int main() {
     A[i] = rd();
     B[i] = rd();
   }
-  fft(A, +1);
-  fft(B, +1);
+  fft(A);
+  fft(B);
   for (int i = 0; i < aligned; i++) A[i] = cmul(A[i], B[i]);
-  fft(A, -1);
+  ifft(A);
   for (int i = 1; i <= 2 * N; i++) {
-    wr((int)((A[i].real() / aligned) + 0.5));
+    wr((int)(A[i].real() + 0.5));
   }
   return 0;
 }
