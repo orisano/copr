@@ -48,11 +48,11 @@ struct HLDecomposition {
         std::swap(u, v);
         std::swap(head_u, head_v);
       }
-      f(nodes[v].path_id, 0, nodes[v].idx + 1);
+      f(nodes[v].path_id, 0, nodes[v].idx);
       v = nodes[head_v].par;
     }
     if (nodes[v].idx < nodes[u].idx) std::swap(u, v);
-    f(nodes[v].path_id, nodes[u].idx, nodes[v].idx + 1);
+    f(nodes[v].path_id, nodes[u].idx, nodes[v].idx);
   }
   int lca(int u, int v) const {
     int x;
