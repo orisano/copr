@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <limits>
 
-template<typename IntType>
+template <typename IntType>
 struct StarrySkyTree {
   using Index0 = int;
   using value_type = IntType;
@@ -16,7 +16,8 @@ struct StarrySkyTree {
   Node* const nodes;
 
   StarrySkyTree(int size) : StarrySkyTree(size, 1 << (32 - __builtin_clz(size - 1))) {}
-  StarrySkyTree(int size, int aligned) : N(aligned), nodes((Node*)std::calloc(sizeof(Node), aligned * 2)) {
+  StarrySkyTree(int size, int aligned)
+      : N(aligned), nodes((Node*)std::calloc(sizeof(Node), aligned * 2)) {
     assert(nodes != nullptr);
   }
   void add(value_type v, Index0 a, Index0 b) {
@@ -39,8 +40,7 @@ struct StarrySkyTree {
     }
     return maxi;
   }
- private:
-  inline value_type eval_node(Node n) const {
-    return n.val + n.add;
-  }
+
+private:
+  inline value_type eval_node(Node n) const { return n.val + n.add; }
 };

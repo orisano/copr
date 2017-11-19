@@ -14,10 +14,6 @@ struct BipartiteMatching {
       dinic.add_edge(y + X + OFFSET, T, 1);
     }
   }
-  void add_edge(int x, int y) {
-    dinic.add_edge(x + OFFSET, y + X + OFFSET, 1);
-  }
-  int max_matching() {
-    return dinic.max_flow_value(S, T);
-  }
+  void add_edge(int x, int y) { dinic.add_edge(x + OFFSET, y + X + OFFSET, 1); }
+  int max_matching() { return dinic.max_flow_value(S, T); }
 };

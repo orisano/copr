@@ -4,7 +4,7 @@
 #include <cassert>
 #include <vector>
 
-template<typename ProfitType>
+template <typename ProfitType>
 struct ProjectSelection {
   enum { S, T, OFFSET };
 
@@ -31,7 +31,5 @@ struct ProjectSelection {
     int y = unselected + OFFSET;
     dinic.add_edge(x, y, loss);
   }
-  ProfitType solve() {
-    return sum - dinic.max_flow_value(S, T);
-  }
+  ProfitType solve() { return sum - dinic.max_flow_value(S, T); }
 };

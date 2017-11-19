@@ -23,7 +23,7 @@ struct EulerTour {
     depth.shrink_to_fit();
   }
 
-  void traverse(int u, int p=-1, int d=0) {
+  void traverse(int u, int p = -1, int d = 0) {
     struct Frame {
       int u, p, d;
       int i = 0;

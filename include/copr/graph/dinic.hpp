@@ -4,14 +4,15 @@
 #include <queue>
 #include <vector>
 
-template<typename CapacityType>
+template <typename CapacityType>
 struct Dinic {
   using value_type = CapacityType;
   struct Edge {
     CapacityType cap;
     const int to, rev;
     const bool is_rev;
-    Edge(int to, CapacityType cap, int rev, bool is_rev) : cap(cap), to(to), rev(rev), is_rev(is_rev) {}
+    Edge(int to, CapacityType cap, int rev, bool is_rev)
+        : cap(cap), to(to), rev(rev), is_rev(is_rev) {}
   };
 
   static constexpr auto inf = std::numeric_limits<CapacityType>::max();
@@ -27,9 +28,7 @@ struct Dinic {
     G[from].emplace_back(to, cap, frev, false);
     G[to].emplace_back(from, 0, trev, true);
   }
-  inline Edge& rev_edge(const Edge& e) {
-    return G[e.to][e.rev];
-  }
+  inline Edge& rev_edge(const Edge& e) { return G[e.to][e.rev]; }
   CapacityType max_flow_value(int s, int t) {
     CapacityType value = 0;
     while (labeling(s), level[t] != UNREACHABLE) {

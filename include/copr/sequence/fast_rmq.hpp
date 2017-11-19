@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <vector>
 
-template <typename T, bool Min=true>
+template <typename T, bool Min = true>
 struct FastRMQ {
   using Index = int;
   using BitIndex = int;
@@ -29,6 +29,7 @@ struct FastRMQ {
     if (a + 1 <= b - 1) ans = F(ans, query_large(a + 1, b - 1));
     return ans;
   }
+
 private:
   inline Index F(Index a, Index b) const { return f(a, b) ? a : b; }
 
@@ -36,7 +37,9 @@ private:
   FastRMQ(const std::vector<T>& A, int N, int S) : FastRMQ(A, N, S, (N + S - 1) / S) {}
   FastRMQ(const std::vector<T>& A, int N, int S, int L) : FastRMQ(A, N, S, L, std::__lg(L) + 1) {}
   FastRMQ(const std::vector<T>& A, int N, int S, int L, int LG_L)
-      : A(A), N(N), S(S), L(L), LG_L(LG_L), lg(1 << S), small((BitIndex*)std::malloc(N * sizeof(BitIndex))), large((Index*)std::malloc(L * LG_L * sizeof(Index))) {
+      : A(A), N(N), S(S), L(L), LG_L(LG_L), lg(1 << S),
+        small((BitIndex*)std::malloc(N * sizeof(BitIndex))),
+        large((Index*)std::malloc(L * LG_L * sizeof(Index))) {
     assert(small != nullptr);
     assert(large != nullptr);
     for (int i = 1, sz = lg.size(); i < sz; i++) {
@@ -69,7 +72,9 @@ private:
   }
   inline int ntz(int x) const { return lg[x & -x]; }
   inline int bitmask(int l, int r) const { return ((1 << (r - l + 1)) - 1) << l; }
-  inline Index query_small(Index l, Index r) const { return (l - l % S) + ntz(small[r] & bitmask(l % S, r % S)); }
+  inline Index query_small(Index l, Index r) const {
+    return (l - l % S) + ntz(small[r] & bitmask(l % S, r % S));
+  }
   inline Index query_large(Index l, Index r) const {
     int x = lg[r - l + 1];
     return F(large[l * LG_L + x], large[(r - (1 << x) + 1) * LG_L + x]);

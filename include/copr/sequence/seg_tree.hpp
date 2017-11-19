@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-template<typename Monoid>
+template <typename Monoid>
 struct SegTree {
   using value_type = typename Monoid::value_type;
   using Index0 = int;
@@ -21,7 +21,7 @@ struct SegTree {
     }
   }
 
-  template<typename F>
+  template <typename F>
   void modify(Index0 x, F f) {
     update(x, f(nodes[x + N]));
   }
