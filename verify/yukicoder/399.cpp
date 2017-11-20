@@ -19,7 +19,7 @@ struct Sum {
 struct Add {
   using value_type = ll;
   static ll none() { return 0; }
-  static ll eval(ll x, ll v, int k) { return x + v * k; }
+  static ll eval(ll x, ll v, int l, int r) { return x + v * (r - l); }
   static ll merge(ll x, ll y) { return x + y; }
 };
 
