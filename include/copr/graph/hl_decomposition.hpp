@@ -1,18 +1,12 @@
 #pragma once
 #include <algorithm>
-#include <cstdlib>
 #include <functional>
 #include <vector>
 
 struct HLDecomposition {
   const int N;
   std::vector<std::vector<int>> tree;
-
-  std::vector<int> cluster, par, depth, ord;
-  std::vector<int> head, offset;
-
-  // ord[head[cluster[u]] + offset[u]] == u
-
+  std::vector<int> cluster, par, depth, ord, head, offset;
   HLDecomposition(int N) : N(N), tree(N), cluster(N, -1), par(N, -1), depth(N), ord(N), offset(N) {}
 
   void add_edge(int u, int v) {
@@ -36,7 +30,6 @@ struct HLDecomposition {
     for (int i = N - 1; i > 0; i--) {
       subtree_size[par[Q[i]]] += subtree_size[Q[i]];
     }
-
     std::vector<std::vector<int>> pathes;
     for (int u : Q) {
       if (cluster[u] == -1) {
@@ -44,7 +37,6 @@ struct HLDecomposition {
         pathes.emplace_back();
       }
       pathes[cluster[u]].push_back(u);
-
       int max_subsize = -1, selected = -1;
       for (int v : tree[u]) {
         if (par[u] == v) continue;
@@ -52,14 +44,13 @@ struct HLDecomposition {
         max_subsize = subtree_size[v];
         selected = v;
       }
-      if (selected != -1) cluster[selected] = u;
+      if (selected != -1) cluster[selected] = cluster[u];
     }
-
     int P = pathes.size();
     head.resize(P + 1);
     for (int p = 0; p < P; p++) {
       int H = head[p];
-      int L = pathes[p];
+      int L = pathes[p].size();
       head[p + 1] = H + L;
       for (int i = 0; i < L; i++) {
         int v = pathes[p][i];
@@ -68,19 +59,30 @@ struct HLDecomposition {
       }
     }
   }
-  void for_each(int u, int v, std::function<void(int, int, int)> f) const {
+  void for_each(int u, int v, std::function<void(int, int)> f) const {
     while (cluster[u] != cluster[v]) {
-      if (depth[head[cluster[u]]] > depth[head[cluster[v]]]) std::swap(u, v);
-      int c = cluster[v];
-      f(c, head[c], head[c] + offset[v] + 1);
-      v = par[head[c]];
+      if (depth[ord[head[cluster[u]]]] > depth[ord[head[cluster[v]]]]) std::swap(u, v);
+      int h = head[cluster[v]];
+      f(h, h + offset[v] + 1);
+      v = par[ord[h]];
     }
-    if (offset[v] < offset[u]) std::swap(u, v);
-    f(cluster[u], head[cluster[u]] + offset[u], head[cluster[v]] + offset[v] + 1);
+    if (offset[u] > offset[v]) std::swap(u, v);
+    f(head[cluster[u]] + offset[u], head[cluster[v]] + offset[v] + 1);
   }
   int lca(int u, int v) const {
     int x;
-    for_each(u, v, [&](int p, int l, int r) { x = pathes[p][l]; });
+    for_each(u, v, [&](int l, int r) { x = ord[l]; });
     return x;
+  }
+  std::vector<std::vector<int>> build_pathes() const {
+    const int P = head.size() - 1;
+    std::vector<std::vector<int>> pathes(P);
+    for (int i = 0; i < P; i++) {
+      pathes[i].reserve(head[i + 1] - head[i]);
+      for (int j = head[i]; j < head[i + 1]; j++) {
+        pathes[i].push_back(ord[j]);
+      }
+    }
+    return pathes;
   }
 };
