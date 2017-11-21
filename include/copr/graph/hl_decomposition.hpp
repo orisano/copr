@@ -1,6 +1,5 @@
 #pragma once
 #include <algorithm>
-#include <functional>
 #include <vector>
 
 struct HLDecomposition {
@@ -59,7 +58,8 @@ struct HLDecomposition {
       }
     }
   }
-  void for_each(int u, int v, std::function<void(int, int)> f) const {
+  template <typename F>
+  void for_each(int u, int v, F f) const {
     while (cluster[u] != cluster[v]) {
       if (depth[ord[head[cluster[u]]]] > depth[ord[head[cluster[v]]]]) std::swap(u, v);
       int h = head[cluster[v]];
