@@ -32,19 +32,14 @@ int main() {
   }
   hl.build();
 
-  std::vector<LazySegTree<Sum, Add>> segs;
-  segs.reserve(hl.pathes.size());
-  for (auto&& path : hl.pathes) {
-    segs.emplace_back(path.size() + 1);
-  }
-
+  LazySegTree<Sum, Add> seg(N);
   int Q = rd();
   ll ans = 0;
   for (int i = 0; i < Q; i++) {
     int A = rd() - 1, B = rd() - 1;
-    hl.for_each(A, B, [&](int p, int l, int r) {
-      segs[p].exec(l, r, 1);
-      ans += segs[p].query(l, r);
+    hl.for_each(A, B, [&](int l, int r) {
+      seg.exec(l, r, 1);
+      ans += seg.query(l, r);
     });
   }
   wr(ans);
