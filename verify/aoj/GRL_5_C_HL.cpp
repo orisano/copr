@@ -16,7 +16,7 @@ int main() {
       hl.add_edge(i, rd());
     }
   }
-  hl.build(0);
+  hl.build();
   int Q = rd();
   for (int i = 0; i < Q; i++) {
     int u = rd(), v = rd();
