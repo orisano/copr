@@ -10,24 +10,39 @@ template<typename T=int>inline void wr(T x,char c='\n'){int s=0,m=0;char b[32];i
 
 using ll = long long;
 
-const ll MOD = 1e9 + 7;
+const unsigned long long MOD = 1e9 + 7;
+
+inline ll mod_add(ll x, ll y) {
+  x += y;
+  if (x > MOD) x -= MOD;
+  return x;
+}
+
+inline ll mod_sub(ll x, ll y) {
+  x -= y;
+  if (x < 0) x += MOD;
+  return x;
+}
+
+inline ll mod_mul(ll x, ll y) {
+  return x * y % MOD;
+}
 
 struct Sum {
   using value_type = ll;
   static ll empty() { return 0; }
-  static ll append(ll x, ll y) { return (x + y) % MOD; }
+  static ll append(ll x, ll y) { return mod_add(x, y); }
 };
 
-int gp;
-std::vector<std::vector<ll>> ssum, csum;
+std::vector<ll> ssum, csum;
 
 struct Add {
   using value_type = ll;
   static ll none() { return 0; }
   static ll eval(ll x, ll v, int l, int r) {
-    return (x + (v * ((csum[gp][r] - csum[gp][l] + MOD) % MOD)) % MOD) % MOD;
+    return mod_add(x, mod_mul(v, mod_sub(csum[r], csum[l])));
   }
-  static ll merge(ll x, ll y) { return (x + y) % MOD; }
+  static ll merge(ll x, ll y) { return mod_add(x, y); }
 };
 
 int main() {
@@ -44,21 +59,13 @@ int main() {
   }
   hl.build();
 
-  const int P = hl.pathes.size();
-  std::vector<LazySegTree<Sum, Add>> segs;
-  segs.reserve(P);
-  ssum.resize(P);
-  csum.resize(P);
-  for (int p = 0; p < P; p++) {
-    const int L = hl.pathes[p].size();
-    segs.emplace_back(L);
-    ssum[p].resize(L + 1);
-    csum[p].resize(L + 1);
-    for (int i = 1; i <= L; i++) {
-      int u = hl.pathes[p][i - 1];
-      ssum[p][i] = (ssum[p][i - 1] + S[u]) % MOD;
-      csum[p][i] = (csum[p][i - 1] + C[u]) % MOD;
-    }
+  LazySegTree<Sum, Add> seg(N);
+  ssum.resize(N + 1);
+  csum.resize(N + 1);
+
+  for (int i = 0; i < N; i++) {
+    ssum[i + 1] = mod_add(ssum[i], S[hl.ord[i]]);
+    csum[i + 1] = mod_add(csum[i], C[hl.ord[i]]);
   }
 
   int Q = rd();
@@ -67,19 +74,14 @@ int main() {
     int x = rd() - 1, y = rd() - 1;
     if (t) {
       ll ans = 0;
-      hl.for_each(x, y, [&](int p, int l, int r) {
-        gp = p;
-        ans += (ssum[p][r] - ssum[p][l] + MOD) % MOD;
-        ans += segs[p].query(l, r);
-        ans %= MOD;
+      hl.for_each(x, y, [&](int l, int r) {
+        ans = mod_add(ans, mod_sub(ssum[r], ssum[l]));
+        ans = mod_add(ans, seg.query(l, r));
       });
       wr(ans);
     } else {
       ll z = rd();
-      hl.for_each(x, y, [&](int p, int l, int r) {
-        gp = p;
-        segs[p].exec(l, r, z);
-      });
+      hl.for_each(x, y, [&](int l, int r) { seg.exec(l, r, z); });
     }
   }
   return 0;
